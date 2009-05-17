@@ -7,7 +7,23 @@
  * @package thanks
 */
 
-echo '<style>
+if (!defined('FORUM_ROOT'))	define('FORUM_ROOT', '../../');
+require FORUM_ROOT.'config.php';
+$lang = (isset($_GET['lang'])) ? $_GET['lang'] : 'English';
+if (file_exists(FORUM_ROOT.'extensions/thanks/lang/'.$lang.'.php'))
+	require FORUM_ROOT.'extensions/thanks/lang/'.$lang.'.php';
+
+require FORUM_ROOT.'include/dblayer/common_db.php';
+
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="description" content="<?php echo $lang_thanks['ThanksHtml'];?>" />
+<title><?php echo $lang_thanks['ThanksHtml'];?></title>
+<style type="text/css">
 #thanks-head
 {
 	background: #1F537B;
@@ -37,17 +53,9 @@ echo '<style>
 	font-size: 12px;
 	font-family: Georgia;
 }
-</style>';
-// Make sure no one attempts to run this script "directly"
-if (!defined('FORUM_ROOT'))	define('FORUM_ROOT', '../../');
-if (!defined('FORUM'))	define('FORUM', 1);
-require FORUM_ROOT.'config.php';
-require FORUM_ROOT.'include/dblayer/common_db.php';
-if (file_exists(FORUM_ROOT.'extensions/thanks/lang/'.$forum_user['language'].'.php'))
-	require FORUM_ROOT.'extensions/thanks/lang/'.$forum_user['language'].'.php';
-else
-	require FORUM_ROOT.'extensions/thanks/lang/English.php';
-	
+</style></head>
+<body>
+<?php	
 $post_id = (isset($_GET['id'])) ? intval($_GET['id']) : '';
 if ($post_id < 1)
 	$error .=  ($lang_thanks['error_00']);
@@ -72,7 +80,7 @@ $result_thanks = $forum_db->query_build($query_thanks) or error(__FILE__, __LINE
 		$error .=  $lang_thanks['error_03'];
 	else
 	{
-		$UserThanks = '<div id="thanks-head">'.$lang_thanks['ThanksUser'].'</div>';
+		$UserThanks = '<div id="thanks-head">'.$lang_thanks['Thanks'].'</div>';
 		while($row = $forum_db->fetch_assoc($result_thanks))
 		{
 			$timeT = date( 'd-m-Y H:h', $row['thank_date']);
@@ -84,3 +92,5 @@ $result_thanks = $forum_db->query_build($query_thanks) or error(__FILE__, __LINE
 	else  echo $error;
 }
 ?>
+</body>
+</html>

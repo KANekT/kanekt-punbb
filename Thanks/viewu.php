@@ -28,8 +28,8 @@ $page_id = (isset($_GET['page'])) ? intval($_GET['page']) : 0;
 $page_id = $page_id*50;
 // 
 $query_thanks = array(
-	'SELECT'	=> 't.id, t.post_id, t.thank_date, u.username, IF(CHAR_LENGTH(p.message)<70, p.message, CONCAT(LEFT(p.message, 70), "...")) as subject',
-	'FROM'		=> 'thanks AS t',
+	'SELECT'	=> 't.id, t.post_id, t.thank_date, u.username, t1.subject, t1.id as topic_id, IF(CHAR_LENGTH(p.message)<70, p.message, CONCAT(LEFT(p.message, 70), "...")) as post',
+'FROM'		=> 'thanks AS t',
 	'JOINS'		=> array(
 	array(
 		'INNER JOIN'	=> 'users AS u',
@@ -54,16 +54,28 @@ $query_thanks = array(
 $result_thanks = $forum_db->query_build($query_thanks) or error(__FILE__, __LINE__);
 if ($forum_db->num_rows($result_thanks) > 0)
 {
-	$UserThanks = '<table>';
-	while($row = $forum_db->fetch_assoc($result_thanks))
+	$UserThanks = '<div class="ct-group"><table>
+	<thead><tr>
+	<th class="tc0" scope="col" width="25%">'.$lang_thanks['ThanksTopic'].'</th>
+	<th class="tc1" scope="col" width="45%">'.$lang_thanks['ThanksPost'].'</th>
+	<th class="tc2" scope="col" width="15%">'.$lang_thanks['ThanksAuthor'].'</th>
+	<th class="tc3" scope="col" width="20%">'.$lang_thanks['ThanksData'].'</th>
+	</tr></thead>
+	<tbody>';
+while($row = $forum_db->fetch_assoc($result_thanks))
 	{
-		$row['subject'] = preg_replace('#\[(.*?)\](.*?)\[/(.*?)\]#ms','$2',$row['subject']);
-		$row['subject'] = preg_replace('#\[(.*?)\]#ms','',$row['subject']);
-		$row['subject'] = preg_replace('#\[/#ms','',$row['subject']);
-		$row['subject'] = preg_replace('#\[(.*?)\](.*?)#ms','$2',$row['subject']);
-		$UserThanks .= '<tr><td width="60%"><a href="/viewtopic.php?pid='.$row['post_id'].'#'.$row['post_id'].'">'.$row['subject'].'</td><td width="15%"><i>'.$row['username'].'</i></td><td width="25%">'.format_time($row['thank_date']).'</td></tr>';
+		$row['post'] = preg_replace('#\[(.*?)\](.*?)\[/(.*?)\]#ms','$2',$row['post']);
+		$row['post'] = preg_replace('#\[(.*?)\]#ms','',$row['post']);
+		$row['post'] = preg_replace('#\[/#ms','',$row['post']);
+		$row['post'] = preg_replace('#\[(.*?)\](.*?)#ms','$2',$row['post']);
+		$UserThanks .= '<tr>
+		<td><a href="viewtopic.php?id='.$row['topic_id'].'">'.$row['subject'].'</a></td>
+		<td><a href="viewtopic.php?pid='.$row['post_id'].'#'.$row['post_id'].'">'.$row['post'].'</a></td>
+		<td><i>'.$row['username'].'</i></td>
+		<td>'.format_time($row['thank_date']).'</td>
+		</tr>';
 	}
-	$UserThanks .= '</table>';
+	$UserThanks .= '</tbody></table></div>';
 	message($UserThanks, '',$lang_thanks['Thanks']);
 }
 else
